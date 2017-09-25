@@ -6,19 +6,20 @@ var _        = require("lodash");
 var { exec } = require('child_process');
 var path     = require('path');
 
+console.log('[INFO] Starting directory: ' + process.cwd());
+
 // User variables
 var args       = process.argv.slice(2);
 
-var isGit      = commander("--git");
-var isConfig   = commander("--config");
+var isFull     = commander("--full");
 var PATH_INPUT = args[0];
 
-var { PATH_OUTPUT, LANGUAGES, KEY_REGEX, ALLOW_CREATE } = getConfig();
+var { PATH_OUTPUT, LANGUAGES, KEY_REGEX, ALLOW_CREATE, FILE_TYPES } = getConfig();
 
 // Initialize variebles
     KEY_REGEX  = new RegExp(KEY_REGEX, 'g');
 var TYPES_JSON = new RegExp("([aA-zZ\-]*)\/i18n\/(" + LANGUAGES.join("|") + ")\.json$");
-var FILES      = getFiles(PATH_INPUT);
+var FILES      = getFilesByTypes(new RegExp('.*\.(' + FILE_TYPES.join("|") + ')$'));
 var JSON_FILES = [];
 var DIFF_KEYS  = {};
 var OLD_KEYS   = {};
@@ -30,23 +31,18 @@ LANGUAGES.forEach((lang) => {
 });
 
 // Start module
-start();
-
-function start() {
-  console.log('[INFO] Starting directory: ' + process.cwd() + '\n');
-
-  if(isGit)
+  if(!isFull) {
     localizerWithGitChange();
-  else
+  }
+  else {
     localizer();
-}
+  }
 
 function localizer(){
   // Get new keys
   console.log('[INFO] Found follow new keys of localization:');
   readFiles(FILES, (data, file) => {
-    var key
-    console.log(KEY_REGEX)
+    let key;
     while((key = KEY_REGEX.exec(data)) != null){
       setByKey(DIFF_KEYS, key[1], '! NEW !');
       console.log(" + " + key[1]);
@@ -59,14 +55,19 @@ function localizer(){
     let charts = file.match(TYPES_JSON)
     OLD_KEYS[charts[2]][charts[1]] = JSON.parse(data);
   });
-  console.log('\n[INFO] Detected follow files of localization:\n'+ JSON_FILES.join("\n") + "\n");
+  console.log('\n[INFO] Detected follow files of localization:\n > '+ JSON_FILES.join("\n > ") + "\n");
 
   mergeKeys();
-  editOrCreateFiles();
+
+  if(!_.isEqual(NEW_KEYS, OLD_KEYS))
+    editOrCreateFiles();
+  else{
+    console.log('[INFO] New keys were added!\n')
+  }
 }
 
 function localizerWithGitChange(){
-  exec('git status -s | cut -c4- | grep "' + PATH_INPUT + '"', (error, stdout) => {
+  exec('git status -s -u | cut -c4- | grep "' + PATH_INPUT + '" | grep ".' + FILE_TYPES.join("\\|") + '$"', (error, stdout) => {
     if (error) {
       console.error('exec error: ${error}');
       return;
@@ -75,9 +76,8 @@ function localizerWithGitChange(){
       console.log('No changed files!');
       return;
     }
-    console.log('[INFO] Found change files by "'+ PATH_INPUT +'":\n' + stdout);
-
     FILES = stdout.split('\n');FILES.pop();
+    console.log('[INFO] Found change files by "'+ PATH_INPUT +'":\n > ' + FILES.join("\n > ") + "\n");
     localizer();
   });
 }
@@ -89,6 +89,7 @@ function editOrCreateFiles(){
     plugins.forEach((plugin) => {
       let path = './' + PATH_OUTPUT + plugin +  '/i18n/' + lang;
       let fileName =  path + '.json';
+
       if(_.isEqual(NEW_KEYS[lang][plugin], OLD_KEYS[lang][plugin]))
         return;
 
@@ -140,6 +141,9 @@ function getFilesByTypes(types) {
 }
 
 function getFiles(path) {
+  if(fs.lstatSync(path).isFile()){
+    return [path];
+  }
   let results = [];
   let list = fs.readdirSync(path);
 
@@ -157,8 +161,7 @@ function getFiles(path) {
 }
 
 
-//helpers
-
+// Helpers
 function setByKey(object, element, value) {
   LANGUAGES.forEach((lang) => {
     _.set(object[lang], element, value);
@@ -167,30 +170,23 @@ function setByKey(object, element, value) {
 
 function getConfig(){
   let conf = {
-    PATH_OUTPUT : "src/plugin/",
+    PATH_OUTPUT : "src/plugins/",
     LANGUAGES   : ["ru", "en"],
-    KEY_REGEX   : "/{{ '([aA-zZ0-9._]*)' \\| translate }}",
+    KEY_REGEX   : "{{ '([aA-zZ0-9._]*)' \\| translate }}",
     ALLOW_CREATE : true,
     ALLOW_REMOVE : false
   }
-
-  if(isConfig){
-    try {
-      conf = require(process.cwd() + '/ng-localizer.config.json');
-      console.log("[INFO] config file detected");
-      return conf;
-    } 
-    catch (ex) {
-      fs.writeFile('./ng-localizer.config.json', JSON.stringify(conf, null, 2) + '\n', function (err) {
-        if (err) {
-            return console.log(err);
-        }
-      });
-
-      return conf;
-    }
+  try {
+    conf = require(process.cwd() + '/ng-localizer.config.json');
+    console.log("[INFO] Config file detected");
+  } 
+  catch (ex) {
+    fs.writeFile('./ng-localizer.config.json', JSON.stringify(conf, null, 2) + '\n', function (err) {
+      if (err) {
+        return console.log(err);
+      }
+    });
   }
-
   return conf;
 }
 
