@@ -33,7 +33,7 @@ Create config file in project's root (ng-localizer.config.json):
 ## Using
 
 Run
-> $ npm run ng-localizer"
+> $ npm run ng-localizer
 
 Use flag ```--full``` for search keys in whole project. Without it will search in only git change project
 
