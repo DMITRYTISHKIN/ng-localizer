@@ -1,0 +1,34 @@
+{
+  "name": "ng-localizer",
+  "version": "1.0.2",
+  "description": "A picker for find and create translate json files",
+  "main": "./index.js",
+  "scripts": {
+    "nodemon": "NODE_PATH=./ nodemon --inspect --debug index.js -m -M -b",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DMITRYTISHKIN/ng-localizer.git"
+  },
+  "keywords": [
+    "localization"
+  ],
+  "author": "Dmitry Tishkin",
+  "license": "ISC",
+  "bin": {
+    "ng-localizer": "./index.js"
+  },
+  "bugs": {
+    "url": "https://github.com/DMITRYTISHKIN/ng-localizer/issues"
+  },
+  "homepage": "https://github.com/DMITRYTISHKIN/ng-localizer#readme",
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  },
+  "dependencies": {
+    "commander": "^2.11.0",
+    "git-controller": "^1.0.5",
+    "lodash": "^4.17.4"
+  }
+}
