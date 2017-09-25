@@ -6,13 +6,15 @@ The picker for search and create/edit translate json files.
 Using npm:
 > $ npm install --dev ng-localizer
 
-Start script:
-> $ ng-localizer \"DIRECTORY_OR_FILE_SEARCH_KEYS\"
-
-Use flag ```--full``` for search keys in whole project. Without it will search in only git change project
+Add script to package.json:
+```json
+"scripts": {
+  "ng-localizer": "ng-localizer \"DIRECTORY_OR_FILE_SEARCH_KEYS\""
+}
+```
 
 ## Config
-Create config file in project's root (ng-localizer-config.json):
+Create config file in project's root (ng-localizer.config.json):
 ```json
 {
   "PATH_OUTPUT" : "src/plugin/",
@@ -29,6 +31,11 @@ Create config file in project's root (ng-localizer-config.json):
 * CREATE_FILE - allow create not exist files
 
 ## Using
+
+Run
+> $ npm run ng-localizer"
+
+Use flag ```--full``` for search keys in whole project. Without it will search in only git change project
 
 Localizer generate localization files by the following path:
 > [PATH_OUTPUT]/(section_project)/i18n/(language).json
