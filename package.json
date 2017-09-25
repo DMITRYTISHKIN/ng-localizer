@@ -23,12 +23,7 @@
     "url": "https://github.com/DMITRYTISHKIN/ng-localizer/issues"
   },
   "homepage": "https://github.com/DMITRYTISHKIN/ng-localizer#readme",
-  "devDependencies": {
-    "nodemon": "^1.11.0"
-  },
   "dependencies": {
-    "commander": "^2.11.0",
-    "git-controller": "^1.0.5",
-    "lodash": "^4.17.4"
+    "lodash": "^3.10.1"
   }
 }
