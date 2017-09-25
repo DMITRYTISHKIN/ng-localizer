@@ -171,10 +171,10 @@ function setByKey(object, element, value) {
 function getConfig(){
   let conf = {
     PATH_OUTPUT : "src/plugins/",
+    FILE_TYPES  : ["ts", "html"],
     LANGUAGES   : ["ru", "en"],
     KEY_REGEX   : "{{ '([aA-zZ0-9._]*)' \\| translate }}",
-    ALLOW_CREATE : true,
-    ALLOW_REMOVE : false
+    ALLOW_CREATE : true
   }
   try {
     conf = require(process.cwd() + '/ng-localizer.config.json');
