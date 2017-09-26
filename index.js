@@ -14,11 +14,11 @@ var args       = process.argv.slice(2);
 var isFull     = commander("--full");
 var PATH_INPUT = args[0];
 
-var { PATH_OUTPUT, LANGUAGES, KEY_REGEX, ALLOW_CREATE, FILE_TYPES } = getConfig();
+var { PATH_OUTPUT, LANGUAGES, KEY_REGEX, ALLOW_CREATE, FILE_TYPES, PATH_JSON } = getConfig();
 
 // Initialize variebles
     KEY_REGEX  = new RegExp(KEY_REGEX, 'g');
-var TYPES_JSON = new RegExp("([aA-zZ\-]*)\/i18n\/(" + LANGUAGES.join("|") + ")\.json$");
+var TYPES_JSON = new RegExp(PATH_JSON + "(" + LANGUAGES.join("|") + ")\.json$");
 var FILES      = getFilesByTypes(new RegExp('.*\.(' + FILE_TYPES.join("|") + ')$'));
 var JSON_FILES = [];
 var DIFF_KEYS  = {};
@@ -31,12 +31,12 @@ LANGUAGES.forEach((lang) => {
 });
 
 // Start module
-  if(!isFull) {
-    localizerWithGitChange();
-  }
-  else {
-    localizer();
-  }
+if(!isFull) {
+  localizerWithGitChange();
+}
+else {
+  localizer();
+}
 
 function localizer(){
   // Get new keys
@@ -170,10 +170,11 @@ function setByKey(object, element, value) {
 
 function getConfig(){
   let conf = {
-    PATH_OUTPUT : "src/plugins/",
-    FILE_TYPES  : ["ts", "html"],
-    LANGUAGES   : ["ru", "en"],
-    KEY_REGEX   : "{{ '([aA-zZ0-9._]*)' \\| translate }}",
+    PATH_OUTPUT  : "src/plugins/",
+    FILE_TYPES   : ["ts", "html"],
+    LANGUAGES    : ["ru", "en"],
+    KEY_REGEX    : "{{ '([aA-zZ0-9._]*)' \\| translate }}",
+    PATH_JSON    : "[aA-zZ\\-_]*\\/i18n\\/([aA-zZ\\-]*)\\.",
     ALLOW_CREATE : true
   }
   try {
