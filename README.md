@@ -39,8 +39,8 @@ Run
 
 Use flag ```--full``` for search keys in whole project. Without it will search in only git change project
 
-Localizer generate localization files by the following path:
-> [PATH_OUTPUT]/(section_project)/i18n/(language).json
+Localizer generate localization files by the following path (default PATH_JSON):
+> [PATH_OUTPUT]/(section_project)/i18n/(section_project).(language).json
 
 Format key should starting with project's section, example:
 > header.auth.button_logout
