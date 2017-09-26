@@ -21,6 +21,7 @@ Create config file in project's root (ng-localizer.config.json):
   "FILE_TYPES"  : ["ts", "html"],
   "LANGUAGES"   : ["ru", "en"],
   "KEY_REGEX"   : "{{ '([aA-zZ0-9._]*)' \\| translate }}",
+  "PATH_JSON"   : "[aA-zZ\\-_]*\\/i18n\\/([aA-zZ\\-]*)\\.",
   "CREATE_FILE" : true
 }
 ```
@@ -28,6 +29,7 @@ Create config file in project's root (ng-localizer.config.json):
 * FILE_TYPES - file types for search
 * LANGUAGES - for every key will generate file language
 * KEY_REGEX - regular expression for searching keys
+* PATH_JSON - path for localization json files
 * CREATE_FILE - allow create not exist files
 
 ## Using
