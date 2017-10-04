@@ -69,12 +69,12 @@ function localizer(){
 
 function localizerWithGitChange(){
   exec('git status -s -u | cut -c4- | grep "' + PATH_INPUT + '" | grep ".' + FILE_TYPES.join("\\|") + '$"', (error, stdout) => {
-    if (error) {
-      console.error(error);
-      return;
-    }
     if (stdout == '') {
       console.log('No changed files!');
+      return;
+    }
+    if (error) {
+      console.error(error);
       return;
     }
     FILES = stdout.split('\n');FILES.pop();
