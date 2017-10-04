@@ -1,6 +1,6 @@
 {
   "name": "ng-localizer",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A picker for find and create translate json files",
   "main": "./index.js",
   "scripts": {
