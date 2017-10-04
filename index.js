@@ -44,8 +44,9 @@ function localizer(){
   readFiles(FILES, (data, file) => {
     let key;
     while((key = KEY_REGEX.exec(data)) != null){
-      setByKey(DIFF_KEYS, key[1], '! NEW !');
-      console.log(" + " + key[1]);
+      let k = key[1] ? key[1] : key[2]
+      setByKey(DIFF_KEYS, k, '! NEW !');
+      console.log(" + " + k);
     }
   });   
 
@@ -69,7 +70,7 @@ function localizer(){
 function localizerWithGitChange(){
   exec('git status -s -u | cut -c4- | grep "' + PATH_INPUT + '" | grep ".' + FILE_TYPES.join("\\|") + '$"', (error, stdout) => {
     if (error) {
-      console.error('exec error: ${error}');
+      console.error(error);
       return;
     }
     if (stdout == '') {
@@ -87,7 +88,7 @@ function editOrCreateFiles(){
   LANGUAGES.forEach((lang) => {
     let plugins = _.keys(NEW_KEYS[lang]);
     plugins.forEach((plugin) => {
-      let path = './' + PATH_OUTPUT + plugin +  '/i18n/' + lang;
+      let path = './' + PATH_OUTPUT + plugin +  '/i18n/' + plugin + '.' + lang;
       let fileName =  path + '.json';
 
       if(_.isEqual(NEW_KEYS[lang][plugin], OLD_KEYS[lang][plugin]))
@@ -96,7 +97,7 @@ function editOrCreateFiles(){
       if(ALLOW_CREATE)
         ensureDirectoryExistence(path);
 
-      fs.writeFile(fileName, JSON.stringify(NEW_KEYS[lang][plugin], null, 2) + '\n', {flag: "wx+"}, function (err) {
+      fs.writeFile(fileName, JSON.stringify(NEW_KEYS[lang][plugin], null, 2) + '\n', {flag: "w"}, function (err) {
         if (err) {
             return console.log(err);
         }
@@ -173,7 +174,7 @@ function getConfig(){
     PATH_OUTPUT  : "src/plugins/",
     FILE_TYPES   : ["ts", "html"],
     LANGUAGES    : ["ru", "en"],
-    KEY_REGEX    : "{{ '([aA-zZ0-9._]*)' \\| translate }}",
+    KEY_REGEX    : "{{ '([aA-zZ0-9._]*)' \\| translate }}|\\.instant\\('([aA-zZ0-9._]*)'\\)",
     PATH_JSON    : "[aA-zZ\\-_]*\\/i18n\\/([aA-zZ\\-]*)\\.",
     ALLOW_CREATE : true
   }
@@ -202,7 +203,7 @@ function commander(command){
 }
 
 function ensureDirectoryExistence(filePath) {
-  var dirname = path.dirname(filePath);
+  let dirname = path.dirname(filePath);
   if (fs.existsSync(dirname)) {
     return true;
   }
