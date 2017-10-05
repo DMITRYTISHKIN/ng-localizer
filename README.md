@@ -17,7 +17,6 @@ Add script to package.json:
 Create config file in project's root (ng-localizer.config.json):
 ```json
 {
-  "PATH_OUTPUT" : "src/plugin/",
   "FILE_TYPES"  : ["ts", "html"],
   "LANGUAGES"   : ["ru", "en"],
   "KEY_REGEX"   : "{{ '([aA-zZ0-9._]*)' \\| translate }}",
@@ -25,7 +24,6 @@ Create config file in project's root (ng-localizer.config.json):
   "CREATE_FILE" : true
 }
 ```
-* PATH_OUTPUT - directory where will generate files of localization
 * FILE_TYPES - file types for search
 * LANGUAGES - for every key will generate file language
 * KEY_REGEX - regular expression for searching keys
@@ -38,9 +36,3 @@ Run
 > $ npm run ng-localizer
 
 Use flag ```--full``` for search keys in whole project. Without it will search in only git change project
-
-Localizer generate localization files by the following path (default PATH_JSON):
-> [PATH_OUTPUT]/(section_project)/i18n/(section_project).(language).json
-
-Format key should starting with project's section, example:
-> header.auth.button_logout
