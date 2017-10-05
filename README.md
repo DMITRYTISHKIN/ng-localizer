@@ -13,6 +13,13 @@ Add script to package.json:
 }
 ```
 
+## Using
+
+Run
+> $ npm run ng-localizer
+
+Use flag ```--full``` for search keys in whole project. Without it will search in only git change project
+
 ## Config
 Create config file in project's root (ng-localizer.config.json):
 ```json
@@ -29,10 +36,3 @@ Create config file in project's root (ng-localizer.config.json):
 * KEY_REGEX - regular expression for searching keys
 * PATH_JSON - path for localization json files
 * CREATE_FILE - allow create not exist files
-
-## Using
-
-Run
-> $ npm run ng-localizer
-
-Use flag ```--full``` for search keys in whole project. Without it will search in only git change project
