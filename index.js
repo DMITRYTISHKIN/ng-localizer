@@ -11,7 +11,6 @@ class Module {
       this.diffKeys[lang] = {};
       this.oldKeys[lang]  = {};
     });
-
     this.nameModule    = pathModule.match(/\/([aA-zZ0-9\-_]*).module.ts$/)[1];
     this.directory     = pathModule.match(/^([aA-zZ0-9\-_/]*)\/[aA-zZ0-9\-_\.]*\.[aA-zZ0-9\-_]*$/)[1];
     this.i18nDirectory = this.directory + "/i18n";
@@ -199,11 +198,9 @@ function localizerWithGitChange(){
       return;
     }
     let files = stdout.split('\n');files.pop();
-
     files.forEach((file) => {
       let currentDirectory = file.match(/^([aA-zZ0-9\-_/]*)\/[aA-zZ0-9\-_\.]*\.[aA-zZ0-9\-_]*$/)[1];
       let modulePath = detectModules(currentDirectory);
-
       if(modulePath){
         if(MODULES_AND_KEYS[modulePath])
           MODULES_AND_KEYS[modulePath].push(file);
@@ -228,10 +225,12 @@ function detectModules(currentDirectory){
     if(/\.module\.ts$/.test(file))
       return file;
   });
-  if(!currentModule){
+  if(!currentModule.length){
     let prevDirectory = currentDirectory.match(/^([aA-zZ0-9\-_\/]*)\//);
-    if(prevDirectory != null && (currentDirectory = prevDirectory[1]))
-      detectModules(currentDirectory);
+    if(prevDirectory != null && (currentDirectory = prevDirectory[1])){
+      currentModule = detectModules(currentDirectory);
+      return currentModule;
+    }
     else return false;
   }
   else return currentModule;
