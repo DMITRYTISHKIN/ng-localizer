@@ -11,8 +11,8 @@ class Module {
       this.diffKeys[lang] = {};
       this.oldKeys[lang]  = {};
     });
-    this.nameModule    = pathModule.match(/\/([aA-zZ0-9\-_]*).module.ts$/)[1];
-    this.directory     = pathModule.match(/^([aA-zZ0-9\-_/]*)\/[aA-zZ0-9\-_\.]*\.[aA-zZ0-9\-_]*$/)[1];
+    this.nameModule    = pathModule.match(/\/([aA-zZ0-9\-_@]*).module.ts$/)[1];
+    this.directory     = pathModule.match(/^([aA-zZ0-9\-_/@]*)\/[aA-zZ0-9\-_\.@]*\.[aA-zZ0-9\-_@]*$/)[1];
     this.i18nDirectory = this.directory + "/i18n";
 
     this.scriptFiles = isFull ? Module.getFilesByTypes(FILES_REGEX, this.directory) : MODULES_AND_KEYS[pathModule];
