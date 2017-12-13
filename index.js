@@ -25,7 +25,8 @@ class Module {
     Module.readFiles(this.scriptFiles, (data, file) => {
       let key;
       while((key = KEY_REGEX.exec(data)) != null){
-        let k = key[1] || key[2];
+        let k = key.find((item, i) => i > 0 && item);
+        if (!k) continue;
         Module.setByKey(this.diffKeys, k, '!');
       }
     });
@@ -240,7 +241,7 @@ function getConfig(){
   let conf = {
     FILE_TYPES   : ["ts", "html"],
     LANGUAGES    : ["ru", "en"],
-    KEY_REGEX    : "{{ '([aA-zZ0-9._]*)' \\| translate }}|\\.instant\\('([aA-zZ0-9._]*)'\\)",
+    KEY_REGEX    : "{{ '([aA-zZ0-9._]*)' \\| translate }}|\\.instant\\('([aA-zZ0-9._]*)'\\)|__\\('([aA-zZ0-9._]*)'\\)",
     PATH_JSON    : "[aA-zZ\\-_]*\\/i18n\\/([aA-zZ\\-]*)\\.",
     ALLOW_CREATE : true
   }
