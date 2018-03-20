@@ -12,7 +12,7 @@ class Module {
       this.oldKeys[lang]  = {};
     });
     this.nameModule    = pathModule.match(/\/([aA-zZ0-9\-_@]*).module.ts$/)[1];
-    this.directory     = pathModule.match(/^([aA-zZ0-9\-_/@]*)\/[aA-zZ0-9\-_\.@]*\.[aA-zZ0-9\-_@]*$/)[1];
+    this.directory     = pathModule.match(/([aA-zZ0-9\-_/@]*)\/[aA-zZ0-9\-_\.@]*\.[aA-zZ0-9\-_@]*$/)[1];
     this.i18nDirectory = this.directory + "/i18n";
 
     this.scriptFiles = isFull ? Module.getFilesByTypes(FILES_REGEX, this.directory) : MODULES_AND_KEYS[pathModule];
@@ -20,11 +20,11 @@ class Module {
   }
 
   moduleStart(){
-    console.log("\n[INFO] Start search keys in module '" + this.nameModule + "':")
+    console.log("\n[INFO] Start search keys in module '" + this.nameModule + "':");
     // Get new keys
     Module.readFiles(this.scriptFiles, (data, file) => {
       let key;
-      while((key = KEY_REGEX.exec(data)) != null){
+      while ((key = KEY_REGEX.exec(data)) != null) {
         let k = key.find((item, i) => i > 0 && item);
         if (!k) continue;
         Module.setByKey(this.diffKeys, k, '!');
@@ -44,25 +44,27 @@ class Module {
     // Sort keys
     this.newKeys = Module.sortByKeys(this.newKeys);
 
-    if(!_.isEqual(this.newKeys, this.oldKeys)){
+    if (!_.isEqual(this.newKeys, this.oldKeys)) {
+      console.log(JSON.stringify(Module.difference(this.newKeys[LANGUAGES[0]], this.oldKeys[LANGUAGES[0]]), null, 2));
       this.editOrCreateFiles();
-    }
-    else{
-      console.log('[INFO] New keys yet were added!\n')
+    } else {
+      console.log("[INFO] New keys not found!\n")
     }
   }
 
-  editOrCreateFiles(){
+  editOrCreateFiles() {
     console.log("[INFO] Files were changed: ");
     LANGUAGES.forEach((lang) => {
       let path = this.i18nDirectory + '/' + this.nameModule + '.' + lang;
       let fileName =  path + '.json';
 
-      if(_.isEqual(this.newKeys[lang], this.oldKeys[lang]))
+      if (_.isEqual(this.newKeys[lang], this.oldKeys[lang])) {
         return;
+      }
 
-      if(ALLOW_CREATE)
+      if (ALLOW_CREATE) {
         Module.ensureDirectoryExistence(path);
+      }
 
       fs.writeFile(fileName, JSON.stringify(this.newKeys[lang], null, 2) + '\n', {flag: "w"}, function (err) {
         if (err) {
@@ -75,10 +77,21 @@ class Module {
   }
 
   // Helpers
-  static sortByKeys(keys){
+  static difference(object, base) {
+    function changes(object, base) {
+      return _.transform(object, function(result, value, key) {
+        if (!_.isEqual(value, base[key])) {
+          result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
+        }
+      });
+    }
+    return changes(object, base);
+  }
+
+  static sortByKeys(keys) {
     return Object.keys(keys).sort().reduce(
       (acc, key) => {
-        if(typeof keys[key] === 'object')
+        if(typeof keys[key] === "object")
           keys[key] = Module.sortByKeys(keys[key]);
         acc[key] = keys[key];
         return acc
@@ -87,7 +100,7 @@ class Module {
 
   static setByKey(object, element, value) {
     LANGUAGES.forEach((lang) => {
-      _.set(object[lang], element, value);
+      _.set(object[lang], element, value + ' ' + element.match(/.*\.(.*)/)[1]);
     });
   }
 
@@ -111,7 +124,7 @@ class Module {
   }
 
   static getFiles(directory) {
-    if(fs.lstatSync(directory).isFile()){
+    if (fs.lstatSync(directory).isFile()) {
       return [directory];
     }
     let results = [];
@@ -123,10 +136,10 @@ class Module {
       let stat = fs.statSync(file);
 
       if (stat && stat.isDirectory()){
-          results = results.concat(Module.getFiles(file));
-      }
-      else
+        results = results.concat(Module.getFiles(file));
+      } else {
         results.push(file);
+      }
     });
 
     return results;
@@ -138,7 +151,7 @@ class Module {
       try{
         if(!fs.existsSync(file)) return;
 
-        let data = fs.readFileSync(file, 'utf8');
+        let data = fs.readFileSync(file, "utf8");
         callback(data, file);
       }
       catch (e) {
@@ -150,10 +163,10 @@ class Module {
 
 var fs       = require("fs");
 var _        = require("lodash");
-var { exec } = require('child_process');
-var path     = require('path');
+var { exec } = require("child_process");
+var path     = require("path");
 
-console.log('[INFO] Starting directory: ' + process.cwd());
+console.log("[INFO] Starting directory: " + process.cwd());
 
 // User variables
 var args       = process.argv.slice(2);
@@ -172,14 +185,13 @@ var MODULES_AND_KEYS = {};
 var MODULES = [];
 
 // Start module
-if(!isFull) {
+if (!isFull) {
   localizerWithGitChange();
-}
-else {
+} else {
   localizer();
 }
 
-function localizer(){
+function localizer() {
   let modules = Module.getFilesByTypes(/\.module.ts$/, PATH_INPUT);
   modules.forEach((key) => {
     let m = new Module(key);
@@ -188,10 +200,10 @@ function localizer(){
   });
 }
 
-function localizerWithGitChange(){
+function localizerWithGitChange() {
   exec('git status -s -u | cut -c4- | grep "' + PATH_INPUT + '" | grep ".' + FILE_TYPES.join("\\|") + '$"', (error, stdout) => {
     if (stdout == '') {
-      console.log('No changed files!');
+      console.log("No changed files!");
       return;
     }
     if (error) {
@@ -200,16 +212,17 @@ function localizerWithGitChange(){
     }
     let files = stdout.split('\n');files.pop();
     files.forEach((file) => {
-      let currentDirectory = file.match(/^([aA-zZ0-9\-_/]*)\/[aA-zZ0-9\-_\.]*\.[aA-zZ0-9\-_]*$/)[1];
+      let currentDirectory = file.match(/^([aA-zZ0-9\-_/@]*)\/[aA-zZ0-9\-_\.@]*\.[aA-zZ0-9\-_@]*$/)[1];
       let modulePath = detectModules(currentDirectory);
-      if(modulePath){
-        if(MODULES_AND_KEYS[modulePath])
+      if (modulePath) {
+        if (MODULES_AND_KEYS[modulePath]) {
           MODULES_AND_KEYS[modulePath].push(file);
-        else
+        } else {
           MODULES_AND_KEYS[modulePath] = [file];
+        }
+      } else {
+        console.log("[ERROR] module for " + file + " not found!");
       }
-      else
-        console.log("[ERROR] module for " + file + " not found!")
     });
 
     _.keys(MODULES_AND_KEYS).forEach((key) => {
@@ -220,37 +233,39 @@ function localizerWithGitChange(){
   });
 }
 
-function detectModules(currentDirectory){
+function detectModules(currentDirectory) {
   let files = Module.getFiles(currentDirectory);
   let currentModule = files.filter((file) => {
-    if(/\.module\.ts$/.test(file))
+    if (/\.module\.ts$/.test(file))
       return file;
   });
-  if(!currentModule.length){
-    let prevDirectory = currentDirectory.match(/^([aA-zZ0-9\-_\/]*)\//);
-    if(prevDirectory != null && (currentDirectory = prevDirectory[1])){
+
+  if (!currentModule.length) {
+    let prevDirectory = currentDirectory.match(/^([aA-zZ0-9\-_\/@]*)\//);
+    if (prevDirectory != null && (currentDirectory = prevDirectory[1])) {
       currentModule = detectModules(currentDirectory);
       return currentModule;
+    } else {
+      return false;
     }
-    else return false;
+  } else {
+    return currentModule;
   }
-  else return currentModule;
 }
 
-function getConfig(){
+function getConfig() {
   let conf = {
     FILE_TYPES   : ["ts", "html"],
     LANGUAGES    : ["ru", "en"],
-    KEY_REGEX    : "{{ '([aA-zZ0-9._]*)' \\| translate }}|\\.instant\\('([aA-zZ0-9._]*)'\\)|__\\('([aA-zZ0-9._]*)'\\)",
-    PATH_JSON    : "[aA-zZ\\-_]*\\/i18n\\/([aA-zZ\\-]*)\\.",
+    KEY_REGEX    : "'([aA-zZ0-9._\\-]*)' \\| translate|\\.instant\\('([aA-zZ0-9._\\-]*)'\\)|__\\('([aA-zZ0-9._\\-]*)'\\)",
+    PATH_JSON    : "[aA-zZ0-9\\-_@]*\\/i18n\\/([aA-zZ0-9\\-_@]*)\\.",
     ALLOW_CREATE : true
   }
   try {
-    conf = require(process.cwd() + '/ng-localizer.config.json');
+    conf = require(process.cwd() + "/ng-localizer.config.json");
     console.log("[INFO] Config file detected\n");
-  } 
-  catch (ex) {
-    fs.writeFile('./ng-localizer.config.json', JSON.stringify(conf, null, 2) + '\n', function (err) {
+  } catch (ex) {
+    fs.writeFile("./ng-localizer.config.json", JSON.stringify(conf, null, 2) + '\n', function (err) {
       if (err) {
         return console.log(err);
       }
@@ -259,11 +274,11 @@ function getConfig(){
   return conf;
 }
 
-function commander(command){
+function commander(command) {
   let index = args.indexOf(command);
-  if(index != -1) {
+  if (index != -1) {
     args.splice(index, 1);
-    return true
+    return true;
   }
   return false;
 }
