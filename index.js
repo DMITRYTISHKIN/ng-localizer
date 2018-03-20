@@ -100,7 +100,9 @@ class Module {
 
   static setByKey(object, element, value) {
     LANGUAGES.forEach((lang) => {
-      _.set(object[lang], element, value + ' ' + element.match(/.*\.(.*)/)[1]);
+      let text = element.match(/.*\.(.*)|(.*)/);
+      text = text[1] || text[2];
+      _.set(object[lang], element, value + ' ' + text);
     });
   }
 
