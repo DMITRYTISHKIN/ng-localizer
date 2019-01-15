@@ -176,7 +176,7 @@ var args       = process.argv.slice(2);
 var isFull     = commander("--full");
 var PATH_INPUT = args[0];
 
-var { LANGUAGES, KEY_REGEX, ALLOW_CREATE, FILE_TYPES, PATH_JSON } = getConfig();
+var { LANGUAGES, KEY_REGEX, ALLOW_CREATE, FILE_TYPES, PATH_JSON, CORE_MODULE_REGEX } = getConfig();
 
 // Initialize variebles
     KEY_REGEX    = new RegExp(KEY_REGEX, 'g');
@@ -194,7 +194,7 @@ if (!isFull) {
 }
 
 function localizer() {
-  let modules = Module.getFilesByTypes(/\.module.ts$/, PATH_INPUT);
+  let modules = Module.getFilesByTypes(new RegExp(CORE_MODULE_REGEX), PATH_INPUT);
   modules.forEach((key) => {
     let m = new Module(key);
     MODULES.push(m);
@@ -261,10 +261,11 @@ function getConfig() {
     LANGUAGES    : ["ru", "en"],
     KEY_REGEX    : "'([aA-zZ0-9._\\-]*)' \\| translate|\\.instant\\('([aA-zZ0-9._\\-]*)'\\)|__\\('([aA-zZ0-9._\\-]*)'\\)",
     PATH_JSON    : "[aA-zZ0-9\\-_@]*\\/i18n\\/([aA-zZ0-9\\-_@]*)\\.",
+    CORE_MODULE_REGEX : "\\.module.ts$",
     ALLOW_CREATE : true
   }
   try {
-    conf = require(process.cwd() + "/ng-localizer.config.json");
+    conf = _.merge(conf, require(process.cwd() + "/ng-localizer.config.json"));
     console.log("[INFO] Config file detected\n");
   } catch (ex) {
     fs.writeFile("./ng-localizer.config.json", JSON.stringify(conf, null, 2) + '\n', function (err) {
