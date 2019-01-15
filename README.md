@@ -24,12 +24,12 @@ Use flag ```--full``` for search keys in whole project. Without it will search i
 You can customize autocreating config file in project's root (ng-localizer.config.json):
 ```json
 {
-  FILE_TYPES   : ["ts", "html"],
-  LANGUAGES    : ["ru", "en"],
-  KEY_REGEX    : "'([aA-zZ0-9._\\-]*)' \\| translate|\\.instant\\('([aA-zZ0-9._\\-]*)'\\)|__\\('([aA-zZ0-9._\\-]*)'\\)",
-  PATH_JSON    : "[aA-zZ0-9\\-_@]*\\/i18n\\/([aA-zZ0-9\\-_@]*)\\.",
-  CORE_MODULE_REGEX : "\\.module.ts$",
-  ALLOW_CREATE : true
+  "FILE_TYPES"   : ["ts", "html"],
+  "LANGUAGES"    : ["ru", "en"],
+  "KEY_REGEX"    : "'([aA-zZ0-9._\\-]*)' \\| translate|\\.instant\\('([aA-zZ0-9._\\-]*)'\\)|__\\('([aA-zZ0-9._\\-]*)'\\)",
+  "PATH_JSON"    : "[aA-zZ0-9\\-_@]*\\/i18n\\/([aA-zZ0-9\\-_@]*)\\.",
+  "CORE_MODULE_REGEX" : "\\.module.ts$",
+  "ALLOW_CREATE" : true
 }
 ```
 * FILE_TYPES - file types for search
