@@ -1,10 +1,12 @@
 {
   "name": "ng-localizer",
-  "version": "1.1.6",
+  "version": "1.2.0",
   "description": "A picker for find and create translate json files",
-  "main": "./index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "nodemon": "NODE_PATH=./ nodemon --inspect --debug index.js -m -M -b",
+    "build": "tsc",
+    "clean": "rm -rf ./lib/",
+    "prepack": "npm run clean && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,7 +19,7 @@
   "author": "Dmitry Tishkin",
   "license": "ISC",
   "bin": {
-    "ng-localizer": "./index.js"
+    "ng-localizer": "lib/index.js"
   },
   "bugs": {
     "url": "https://github.com/DMITRYTISHKIN/ng-localizer/issues"
@@ -25,5 +27,10 @@
   "homepage": "https://github.com/DMITRYTISHKIN/ng-localizer#readme",
   "dependencies": {
     "lodash": "^3.10.1"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.18",
+    "@types/lodash": "^4.14.119",
+    "typescript": "^3.2.2"
   }
 }
