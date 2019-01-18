@@ -1,9 +1,7 @@
-import {ExecException} from "child_process";
-
-const fs = require("fs");
-const _ = require("lodash");
-const {exec} = require("child_process");
-const AngularModule = require('./angularModule');
+import {exec, ExecException} from "child_process";
+import * as fs from "fs";
+import * as _ from "lodash";
+import {AngularModule} from "./angularModule";
 
 type Config = {
     FILE_TYPES: string[],
@@ -20,6 +18,7 @@ console.log("[INFO] Starting directory: " + process.cwd());
 const args = process.argv.slice(2);
 
 const isFull = commander("--full");
+const preserveKeys = commander("--preserve-keys");
 const PATH_INPUT: string = args[0];
 
 const {LANGUAGES, KEY_REGEX, ALLOW_CREATE, FILE_TYPES, PATH_JSON, CORE_MODULE_REGEX} = getConfig();
@@ -44,7 +43,7 @@ function localizer() {
     modules.forEach((key: string) => {
         let m = new AngularModule(key, LANGUAGES, isFull, FILES_REGEX, MODULES_AND_KEYS, LOCALE_REGEX);
         MODULES.push(m);
-        m.moduleStart(KEY_REGEX_, ALLOW_CREATE);
+        m.moduleStart(KEY_REGEX_, ALLOW_CREATE, preserveKeys);
     });
 }
 
@@ -79,7 +78,7 @@ function localizerWithGitChange() {
             _.keys(MODULES_AND_KEYS).forEach((key: string) => {
                 let m = new AngularModule(key, LANGUAGES, isFull, FILES_REGEX, MODULES_AND_KEYS, LOCALE_REGEX);
                 MODULES.push(m);
-                m.moduleStart(KEY_REGEX_, ALLOW_CREATE);
+                m.moduleStart(KEY_REGEX_, ALLOW_CREATE, preserveKeys);
             });
         }
     );
