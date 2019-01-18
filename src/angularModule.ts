@@ -1,10 +1,12 @@
-const fs = require("fs");
-const path = require("path");
-const _ = require("lodash");
+import * as fs from "fs";
+import * as _ from "lodash";
+import * as path from "path";
+// @ts-ignore
+import * as diff from "recursive-diff"
 
 type keys = { [key: string]: keys };
 
-class AngularModule {
+export class AngularModule {
     private newKeys: keys = {};
     private oldKeys: keys = {};
     private diffKeys: keys = {};
@@ -34,7 +36,7 @@ class AngularModule {
         this.i18nFiles = AngularModule.getFilesByTypes(LOCALE_REGEX, this.directory);
     }
 
-    public moduleStart(KEY_REGEX: RegExp, ALLOW_CREATE: boolean) {
+    public moduleStart(KEY_REGEX: RegExp, ALLOW_CREATE: boolean, preserveKeys:boolean) {
         console.log("\n[INFO] Start search keys in module '" + this.nameModule + "':");
         // Get new keys
         AngularModule.readFiles(this.scriptFiles, (data) => {
@@ -53,21 +55,25 @@ class AngularModule {
         });
 
         // Merge keys
-        this.newKeys = _.cloneDeep(this.oldKeys);
-        _.defaultsDeep(this.newKeys, this.diffKeys);
+        if (preserveKeys) {
+            this.newKeys = _.cloneDeep(this.oldKeys);
+            _.defaultsDeep(this.newKeys, this.diffKeys);
+        } else {
+            this.newKeys = AngularModule.takeValues(this.diffKeys, this.oldKeys);
+        }
 
         // Sort keys
         this.newKeys = AngularModule.sortByKeys(this.newKeys);
 
         if (!_.isEqual(this.newKeys, this.oldKeys)) {
-            console.log(JSON.stringify(AngularModule.difference(this.newKeys[this.languages[0]], this.oldKeys[this.languages[0]]), null, 2));
+            console.log(JSON.stringify(diff.getDiff(this.oldKeys[this.languages[0]], this.newKeys[this.languages[0]]), null, 2));
             this.editOrCreateFiles(ALLOW_CREATE);
         } else {
-            console.log("[INFO] New keys not found!\n")
+            console.log("[INFO] New/Old keys not found!\n")
         }
     }
 
-    editOrCreateFiles(ALLOW_CREATE: boolean) {
+    private editOrCreateFiles(ALLOW_CREATE: boolean) {
         console.log("[INFO] Files were changed: ");
         this.languages.forEach((lang) => {
             let path = this.i18nDirectory + '/' + this.nameModule + '.' + lang;
@@ -97,19 +103,19 @@ class AngularModule {
     }
 
     // Helpers
-    static difference(object: keys, base: keys) {
-        function changes(object: keys, base: keys): keys {
-            return _.transform(object, function (result: keys, value: keys, key: string) {
-                if (!_.isEqual(value, base[key])) {
-                    result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
-                }
-            });
+    private static takeValues(object: keys, source: keys): keys {
+        let result: keys = {};
+        for (let key in object) if (object.hasOwnProperty(key)) {
+            if (typeof source[key] === "object") {
+                result[key] = AngularModule.takeValues(object[key], source[key]);
+            } else {
+                result[key] = source[key] !== undefined ? source[key] : object[key];
+            }
         }
-
-        return changes(object, base);
+        return result;
     }
 
-    static sortByKeys(keys: keys): keys {
+    private static sortByKeys(keys: keys): keys {
         return Object.keys(keys).sort().reduce(
             (acc: keys, key: string) => {
                 if (typeof keys[key] === "object")
@@ -119,7 +125,7 @@ class AngularModule {
             }, {});
     }
 
-    static setByKey(object: keys, element: string, value: string, languages: string[]) {
+    private static setByKey(object: keys, element: string, value: string, languages: string[]) {
         languages.forEach((lang) => {
             let matched = element.match(/.*\.(.*)|(.*)/);
             let text = matched[1] || matched[2];
@@ -127,7 +133,7 @@ class AngularModule {
         });
     }
 
-    static ensureDirectoryExistence(filePath: string): boolean {
+    private static ensureDirectoryExistence(filePath: string): boolean {
         let dirname = path.dirname(filePath);
         if (fs.existsSync(dirname)) {
             return true;
@@ -170,7 +176,7 @@ class AngularModule {
     }
 
     // Method for read files
-    static readFiles(files: string[], callback: (data: string, file: string) => void): void {
+    private static readFiles(files: string[], callback: (data: string, file: string) => void): void {
         files.forEach((file) => {
             try {
                 if (!fs.existsSync(file)) return;
@@ -183,5 +189,3 @@ class AngularModule {
         });
     }
 }
-
-module.exports = AngularModule;

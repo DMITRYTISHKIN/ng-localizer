@@ -19,6 +19,7 @@ Run
 > $ npm run ng-localizer
 
 Use flag ```--full``` for search keys in whole project. Without it will search in only git change project
+Use flag ```--preserve-keys``` for preserve keys in project. Without it will delete unused keys
 
 ## Config
 You can customize autocreating config file in project's root (ng-localizer.config.json):
