@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import {exec, ExecException} from "child_process";
 import * as fs from "fs";
 import * as _ from "lodash";
